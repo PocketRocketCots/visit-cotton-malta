@@ -61,7 +61,7 @@ const AV_Y = Math.round(P.stpauls[1]) - 35
 const NAMES = [
   { text: 'Gozo', at: toXY([36.003, 14.212]), group: 2 },
   { text: 'Comino', at: toXY([36.03, 14.372]), small: true, group: 3 },
-  { text: 'Malta', at: toXY([35.875, 14.322]), big: true, group: 1 },
+  { text: 'Malta', at: toXY([35.862, 14.288]), big: true, group: 1 }, // out at sea, clear of the Rabat and Dingli labels
 ]
 
 // A point just above a building's top, so its label doesn't cover it.

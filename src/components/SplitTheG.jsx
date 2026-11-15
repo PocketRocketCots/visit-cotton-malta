@@ -547,6 +547,7 @@ export default function SplitTheG({ user, children }) {
             aria-label="Pixel-art scene: Cotton sits at a table on a seafront bar terrace with a pint of stout"
           />
         </div>
+        <div className="lux-shade todo-shade" />
       </div>
       <div className="lux-content">
       <div className="lux-screen lux-game">
