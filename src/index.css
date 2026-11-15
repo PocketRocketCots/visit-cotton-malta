@@ -83,6 +83,10 @@ label{display:block;font-size:.85rem;font-weight:600;color:var(--mute);margin:12
 input,select{font:inherit;width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:var(--r-md);background:#fff;color:var(--ink);transition:box-shadow 280ms var(--ease),border-color 150ms}
 input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 4px rgba(255,45,149,.18),var(--shadow-sparkle)}
 .row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+/* Book a trip: a wider page whose cards flow into as many ~360px columns as fit (1 on phones, up to 3 on big screens) */
+body[data-page="book"] main{max-width:1200px}
+.flow{column-width:360px;column-gap:24px;padding-top:14px}
+.flow>.card{break-inside:avoid;width:100%;display:inline-block;vertical-align:top}
 .nav2{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .nav2 h2{margin:0}
 
@@ -112,6 +116,28 @@ input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 4p
 .hint-touch{display:none}
 @media (hover:none){.hint-mouse{display:none}.hint-touch{display:inline}}
 .pixel-scene{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* Things to do: full-width "Split the G" hero, then the normal-width page below it */
+body[data-page="todo"] main{max-width:none;padding:0 0 48px}
+.page-body{max-width:760px;margin:0 auto;padding:28px 16px 0}
+.pub-hero{position:relative;margin-top:12px;background:#2088b6}
+.pub-scene{position:relative;height:clamp(300px,64vh,640px);cursor:pointer;overflow:hidden}
+.pub-scene canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+/* The panel sits under the scene on narrow screens, and floats over the sea on the left on wide ones */
+.pub-panel{position:relative;margin:-36px 16px 0;padding:20px;background:#fff;border:2px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-glam)}
+.pub-panel h2{font-size:clamp(2.2rem,6vw,3rem);color:var(--ac);margin:0 0 6px}
+.pub-panel h2::after{content:" ✦";font-family:var(--sans);font-size:.45em;vertical-align:.9em;color:var(--gold);text-shadow:var(--shadow-sparkle)}
+.pub-panel .mute{font-size:.95rem;margin:0 0 14px}
+@media (min-width:1000px){
+  .pub-panel{position:absolute;left:32px;top:50%;transform:translateY(-50%);width:330px;margin:0}
+}
+.pub-panel button:disabled{opacity:.7;cursor:default}
+.game-result{min-height:1.6em;margin:14px 0 4px;font-weight:600;color:var(--ink)}
+.game-result.win{color:var(--acd);font-size:1.2rem}
+.game-best{margin:0;color:var(--mute);font-size:.9rem}
+.pint-email{margin:0 0 8px;padding:8px 12px;border-radius:var(--r-md);background:#fff3c4;border:2px solid #f2c94c;font-size:.9rem;font-weight:600}
+.gulping{animation:gulp 500ms ease-in-out infinite}
+@keyframes gulp{50%{transform:scale(.95)}}
 
 /* Calendar */
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}

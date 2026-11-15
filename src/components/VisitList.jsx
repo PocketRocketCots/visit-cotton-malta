@@ -12,10 +12,10 @@ function groupEvents(events, from) {
   return groups
 }
 
-export default function VisitList({ books, cfg, isAdmin, userId, onChange, saveConfig }) {
+// Upcoming visits ("Who's coming")
+export default function VisitList({ books, isAdmin, userId, onChange }) {
   const today = iso(new Date())
   const upcoming = books.filter((b) => b.end_date >= today)
-  const groups = groupEvents(cfg.events, today)
 
   async function removeBooking(id) {
     if (!confirm('Remove this booking?')) return
@@ -24,6 +24,29 @@ export default function VisitList({ books, cfg, isAdmin, userId, onChange, saveC
     await onChange()
   }
 
+  if (!upcoming.length) return <span className="mute">No visits booked yet. Be the first!</span>
+  return upcoming.map((b) => (
+    <div className="item" key={b.id}>
+      <div>
+        <b>{b.name}</b>{' '}
+        <span className="mute">
+          {fmt(b.start_date)} → {fmt(b.end_date)}
+        </span>
+        {b.note && <div className="mute">{b.note}</div>}
+      </div>
+      {(isAdmin || b.user_id === userId) && (
+        <button className="d" onClick={() => removeBooking(b.id)}>
+          Remove
+        </button>
+      )}
+    </div>
+  ))
+}
+
+// Upcoming key dates (events set by the admin)
+export function KeyDates({ cfg, isAdmin, saveConfig }) {
+  const groups = groupEvents(cfg.events, iso(new Date()))
+
   async function removeEvent(g) {
     if (!confirm('Remove this key date?')) return
     const ev = { ...cfg.events }
@@ -31,49 +54,21 @@ export default function VisitList({ books, cfg, isAdmin, userId, onChange, saveC
     await saveConfig({ events: ev })
   }
 
-  return (
-    <>
-      {upcoming.length ? (
-        upcoming.map((b) => (
-          <div className="item" key={b.id}>
-            <div>
-              <b>{b.name}</b>{' '}
-              <span className="mute">
-                {fmt(b.start_date)} → {fmt(b.end_date)}
-              </span>
-              {b.note && <div className="mute">{b.note}</div>}
-            </div>
-            {(isAdmin || b.user_id === userId) && (
-              <button className="d" onClick={() => removeBooking(b.id)}>
-                Remove
-              </button>
-            )}
-          </div>
-        ))
-      ) : (
-        <span className="mute">No visits booked yet. Be the first!</span>
-      )}
-      {groups.length > 0 && (
-        <div style={{ marginTop: 10 }}>
-          <b>Key dates</b>
-          {groups.map((g) => (
-            <div className="item" key={g.start}>
-              <div>
-                <span className="tag">★</span> {g.label}
-                <div className="mute">
-                  {fmt(g.start)}
-                  {g.end !== g.start ? ' – ' + fmt(g.end) : ''}
-                </div>
-              </div>
-              {isAdmin && (
-                <button className="d" onClick={() => removeEvent(g)}>
-                  Remove
-                </button>
-              )}
-            </div>
-          ))}
+  if (!groups.length) return <span className="mute">No key dates coming up.</span>
+  return groups.map((g) => (
+    <div className="item" key={g.start}>
+      <div>
+        <span className="tag">★</span> {g.label}
+        <div className="mute">
+          {fmt(g.start)}
+          {g.end !== g.start ? ' – ' + fmt(g.end) : ''}
         </div>
+      </div>
+      {isAdmin && (
+        <button className="d" onClick={() => removeEvent(g)}>
+          Remove
+        </button>
       )}
-    </>
-  )
+    </div>
+  ))
 }

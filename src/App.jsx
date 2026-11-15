@@ -85,7 +85,7 @@ export default function App() {
         {page === 'home' && <Home />}
         {ready && page === 'login' && <Login />}
         {page === 'book' && user && <Book user={user} profile={profile} />}
-        {page === 'todo' && <ThingsToDo />}
+        {page === 'todo' && <ThingsToDo user={user} />}
         {page === 'property' && <Property />}
       </main>
     </>

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import Calendar from '../components/Calendar'
 import DayDetail from '../components/DayDetail'
 import BookingForm from '../components/BookingForm'
-import VisitList from '../components/VisitList'
+import VisitList, { KeyDates } from '../components/VisitList'
 import Flights from '../components/Flights'
 
 export default function Book({ user, profile }) {
@@ -56,6 +56,8 @@ export default function Book({ user, profile }) {
   return (
     <section>
       <h1>Book a trip</h1>
+      {/* The cards flow into as many columns as fit the screen */}
+      <div className="flow">
       <div className="card">
         <Calendar cfg={cfg} people={people} selA={selA} selB={selB} onPick={pickDay} />
         <div className="legend">
@@ -109,10 +111,15 @@ export default function Book({ user, profile }) {
 
       <div className="card">
         <h2>Who’s coming</h2>
-        <VisitList books={books} cfg={cfg} isAdmin={isAdmin} userId={user.id} onChange={load} saveConfig={saveConfig} />
+        <VisitList books={books} isAdmin={isAdmin} userId={user.id} onChange={load} />
+      </div>
+      <div className="card">
+        <h2>Key dates</h2>
+        <KeyDates cfg={cfg} isAdmin={isAdmin} saveConfig={saveConfig} />
       </div>
 
       <Flights start={start} end={end} homeTown={profile?.home_town} />
+      </div>
     </section>
   )
 }
