@@ -87,6 +87,7 @@ export default function App() {
         {page === 'todo' && <ThingsToDo />}
         {page === 'property' && user && <Property />}
       </main>
+      <footer>Hello</footer>
     </>
   )
 }
