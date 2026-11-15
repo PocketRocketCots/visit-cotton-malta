@@ -19,7 +19,7 @@ function flightLinks(code, start, end) {
   return { google, sky }
 }
 
-export default function Flights({ start, end, homeTown }) {
+export default function Flights({ start, end, homeTown, className = 'card' }) {
   const [town, setTown] = useState('')
   const [hits, setHits] = useState([])
   const [status, setStatus] = useState(null) // null | 'none' | 'error'
@@ -100,7 +100,7 @@ export default function Flights({ start, end, homeTown }) {
   }
 
   return (
-    <div className="card">
+    <div className={className}>
       <h2>Flights to Malta</h2>
       <label htmlFor="town">Your town or city (anywhere in the world)</label>
       <input

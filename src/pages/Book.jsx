@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Calendar from '../components/Calendar'
 import DayDetail from '../components/DayDetail'
 import BookingForm from '../components/BookingForm'
 import VisitList, { KeyDates } from '../components/VisitList'
 import Flights from '../components/Flights'
+import ApartmentScene from '../components/ApartmentScene'
 
 export default function Book({ user, profile }) {
   const isAdmin = !!profile?.is_admin
@@ -15,6 +16,7 @@ export default function Book({ user, profile }) {
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
   const [adminOn, setAdminOn] = useState(false)
+  const pageRef = useRef(null)
 
   const load = useCallback(async () => {
     const [c, b] = await Promise.all([
@@ -28,6 +30,17 @@ export default function Book({ user, profile }) {
   useEffect(() => {
     load()
   }, [load])
+
+  // Glass panels fade up into view as you scroll down to them
+  useEffect(() => {
+    const els = pageRef.current.querySelectorAll('.reveal')
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
+      { threshold: 0.12 },
+    )
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
 
   const people = useCallback((d) => books.filter((b) => b.start_date <= d && d <= b.end_date), [books])
 
@@ -53,72 +66,98 @@ export default function Book({ user, profile }) {
     setEnd(b || a)
   }
 
+  const today = new Date().toISOString().slice(0, 10)
+  const upcoming = books.filter((b) => b.end_date >= today).length
+
   return (
-    <section>
-      <h1>Book a trip</h1>
-      {/* The cards flow into as many columns as fit the screen */}
-      <div className="flow">
-      <div className="card">
-        <Calendar cfg={cfg} people={people} selA={selA} selB={selB} onPick={pickDay} />
-        <div className="legend">
-          <div>
-            <span className="sw" style={{ background: 'var(--bk)' }}>
-              👤
-            </span>
-            Someone visiting
+    <section className="lux" ref={pageRef}>
+      {/* The apartment view stays pinned behind everything while the page scrolls over it */}
+      <div className="lux-bg" aria-hidden="false">
+        <ApartmentScene />
+        <div className="lux-shade" />
+        <div className="lux-frame" />
+      </div>
+
+      <div className="lux-content">
+        {/* Screen 1: headline, blurb and the booking card */}
+        <div className="lux-screen lux-intro">
+          <h1 className="lux-title">
+            Your
+            <br />
+            Seaside
+            <br />
+            Getaway
+          </h1>
+          <div className="lux-blurb">
+            <p>
+              A bright, modern apartment with a large balcony looking straight out over the bay. Pick your dates and
+              I’ll get the kettle on (or the Guinness poured).
+            </p>
+            <div className="lux-stats">
+              <span>
+                <b>{upcoming}</b> {upcoming === 1 ? 'visit' : 'visits'} booked
+              </span>
+              <span>
+                <b>Sea</b> view balcony
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="sw" style={{ background: 'var(--blk)', color: 'var(--mute)', textDecoration: 'line-through' }}>
-              21
-            </span>
-            Not available
-          </div>
-          <div>
-            <span className="sw" style={{ color: 'var(--gold)' }}>
-              ★
-            </span>
-            Key event
-          </div>
-          <div>
-            <span className="sw" style={{ outline: '2px solid var(--ac)', outlineOffset: -2 }} />
-            Selected day
+          <BookingForm start={start} end={end} cfg={cfg} name={profile?.name || user.email} onBooked={load}>
+            {/* Pick your dates right here on the calendar */}
+            <Calendar cfg={cfg} people={people} selA={selA} selB={selB} onPick={pickDay} />
+            <div className="legend">
+              <div>
+                <span className="sw sw-bk">👤</span>
+                Someone visiting
+              </div>
+              <div>
+                <span className="sw sw-blk">21</span>
+                Not available
+              </div>
+              <div>
+                <span className="sw sw-ev">★</span>
+                Key event
+              </div>
+              <div>
+                <span className="sw sw-sel" />
+                Selected day
+              </div>
+            </div>
+            <DayDetail
+              selA={selA}
+              selB={selB}
+              cfg={cfg}
+              people={people}
+              adminOn={adminOn}
+              onSave={(patch) => saveConfig(patch, 'Couldn’t save: ')}
+            />
+            {isAdmin && (
+              <button className="admin-toggle" onClick={() => setAdminOn(!adminOn)}>
+                Admin mode: {adminOn ? 'on' : 'off'}
+              </button>
+            )}
+          </BookingForm>
+          <div className="lux-scroll" aria-hidden="true">
+            Scroll for dates &amp; flights ↓
           </div>
         </div>
-        <DayDetail
-          selA={selA}
-          selB={selB}
-          cfg={cfg}
-          people={people}
-          adminOn={adminOn}
-          onSave={(patch) => saveConfig(patch, 'Couldn’t save: ')}
-        />
-        {isAdmin && (
-          <button style={{ marginTop: 8 }} onClick={() => setAdminOn(!adminOn)}>
-            Admin mode: {adminOn ? 'on' : 'off'}
-          </button>
-        )}
-      </div>
 
-      <BookingForm
-        start={start}
-        end={end}
-        setStart={setStart}
-        setEnd={setEnd}
-        cfg={cfg}
-        name={profile?.name || user.email}
-        onBooked={load}
-      />
+        {/* Screen 2: who's coming on the left, key dates on the right */}
+        <div className="lux-screen lux-pair">
+          <div className="glass-panel reveal">
+            <h2 className="glass-h">Who’s coming</h2>
+            <VisitList books={books} isAdmin={isAdmin} userId={user.id} onChange={load} />
+          </div>
+          <div className="glass-panel reveal">
+            <h2 className="glass-h">Key dates</h2>
+            <KeyDates cfg={cfg} isAdmin={isAdmin} saveConfig={saveConfig} />
+          </div>
+        </div>
 
-      <div className="card">
-        <h2>Who’s coming</h2>
-        <VisitList books={books} isAdmin={isAdmin} userId={user.id} onChange={load} />
-      </div>
-      <div className="card">
-        <h2>Key dates</h2>
-        <KeyDates cfg={cfg} isAdmin={isAdmin} saveConfig={saveConfig} />
-      </div>
-
-      <Flights start={start} end={end} homeTown={profile?.home_town} />
+        {/* Screen 3: flights */}
+        <div className="lux-screen lux-pair">
+          <Flights start={start} end={end} homeTown={profile?.home_town} className="glass-panel reveal" />
+        </div>
       </div>
     </section>
   )

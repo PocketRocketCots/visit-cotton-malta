@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { daysBetween, fmt } from '../lib/dates'
 
-export default function BookingForm({ start, end, setStart, setEnd, cfg, name, onBooked }) {
+// The booking card. Dates are picked on the calendar passed in as `children`.
+export default function BookingForm({ start, end, cfg, name, onBooked, children }) {
   const [note, setNote] = useState('')
   const [msg, setMsg] = useState(null) // { text, ok }
 
   async function submit() {
     setMsg(null)
-    if (!start || !end) return setMsg({ text: 'Please choose both dates.' })
+    if (!start || !end) return setMsg({ text: 'Tap your arrival day on the calendar, then your leaving day.' })
     if (end < start) return setMsg({ text: 'Leaving date is before arrival.' })
     const clash = daysBetween(start, end).find((d) => cfg.blocked.includes(d))
     if (clash) return setMsg({ text: fmt(clash) + ' isn’t available. Try other dates.' })
@@ -26,17 +27,18 @@ export default function BookingForm({ start, end, setStart, setEnd, cfg, name, o
   }
 
   return (
-    <div className="card">
-      <h2>Book a visit</h2>
-      <div className="row">
+    <div className="glass-card">
+      <div className="glass-head">
         <div>
-          <label htmlFor="bs">Arriving</label>
-          <input id="bs" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+          <div className="glass-title">Cotton’s Sea-View Apartment</div>
+          <div className="glass-sub">St Paul’s Bay, Malta</div>
         </div>
-        <div>
-          <label htmlFor="be">Leaving</label>
-          <input id="be" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
-        </div>
+        <span className="glass-badge" aria-hidden="true">
+          ✦
+        </span>
+      </div>
+      <div className="glass-cal" aria-live="polite">
+        {children}
       </div>
       <label htmlFor="bt">Note (optional)</label>
       <input
@@ -46,9 +48,15 @@ export default function BookingForm({ start, end, setStart, setEnd, cfg, name, o
         value={note}
         onChange={(e) => setNote(e.target.value)}
       />
+      <div className="glass-price">
+        <span>
+          <b>Free</b> / night
+        </span>
+        <span>Guinness appreciated</span>
+      </div>
       <div className={'msg' + (msg?.ok ? ' ok' : '')}>{msg?.text}</div>
-      <button className="p" onClick={submit}>
-        Book it
+      <button className="glass-btn" onClick={submit}>
+        Reserve
       </button>
     </div>
   )
