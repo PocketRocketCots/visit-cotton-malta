@@ -70,6 +70,7 @@ export default function App() {
 
   useEffect(() => {
     scrollTo(0, 0)
+    document.body.dataset.page = page // lets the CSS give the home page its full-screen layout
   }, [page])
 
   async function logOut() {

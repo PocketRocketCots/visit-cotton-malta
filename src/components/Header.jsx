@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 const LINKS = [
   ['home', 'Home'],
   ['book', 'Book a trip'],
@@ -16,6 +18,13 @@ function MaltaFlag() {
 }
 
 export default function Header({ page, loggedIn, onLogOut }) {
+  const navRef = useRef(null)
+  // On narrow screens the links scroll sideways: keep the current page's link in view.
+  useEffect(() => {
+    const on = navRef.current?.querySelector('.on')
+    if (on) navRef.current.scrollLeft = Math.max(0, on.offsetLeft - navRef.current.clientWidth / 3)
+  }, [page])
+
   return (
     <header>
       <div className="bar">
@@ -39,7 +48,7 @@ export default function Header({ page, loggedIn, onLogOut }) {
             Log in
           </a>
         )}
-        <nav>
+        <nav ref={navRef}>
           {LINKS.map(([id, label]) => (
             <a key={id} href={'#' + id} className={page === id ? 'on' : undefined}>
               {label}

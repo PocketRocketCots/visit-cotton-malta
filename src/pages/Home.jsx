@@ -1,16 +1,10 @@
-import { useState } from 'react'
+import PixelMap from '../components/PixelMap'
 
 export default function Home() {
-  const [photoOk, setPhotoOk] = useState(true)
   return (
     <section>
-      <div className="hero">
-        {photoOk && <img src="/img/host.jpg" alt="Your host" onError={() => setPhotoOk(false)} />}        <span>
-          📸 Your photo goes here
-          <br />
-          <small>(save it as public/img/host.jpg)</small>
-        </span>
-      </div>
+      <h1 className="sr-only">Visit Cotton in Malta</h1>
+      <PixelMap />
     </section>
   )
 }
