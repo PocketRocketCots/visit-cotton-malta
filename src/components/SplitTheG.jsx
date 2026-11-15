@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { DISTANT_LAND, GLINT, SEA, SKY, SUN, WAVE, rows } from '../lib/palette'
 
 // "Split the G" — full-width pixel-art scene: Cotton sits at a table on a seafront bar terrace.
 // Click to start: he picks up the pint and drinks (you can't see the level while it's at his mouth).
@@ -93,8 +94,8 @@ function drawPint(ctx, level, t) {
   px(PCX - 1, WORD_TOP - 4, '#e3b54a', 3, 1)
   // Little markers either side of the glass at the target height
   const th = halfWidth(TARGET)
-  px(PCX - th - 4, TARGET, '#ff2d95', 2, 1)
-  px(PCX + th + 3, TARGET, '#ff2d95', 2, 1)
+  px(PCX - th - 4, TARGET, '#ffd23f', 2, 1)
+  px(PCX + th + 3, TARGET, '#ffd23f', 2, 1)
 }
 
 // ---------- The scene ----------
@@ -123,25 +124,25 @@ function drawScene(ctx, W, s) {
   }
 
   // Sunset sky and sun
-  bands([[0, '#ff6fae'], [12, '#ff8cc0'], [24, '#ffa9c9'], [34, '#ffc3cc'], [43, '#ffd8c4'], [50, '#ffe8bf']], HORIZON)
+  bands(rows(SKY, 0, HORIZON), HORIZON)
   const sx = Math.round(W * 0.84)
-  disc(sx, HORIZON - 7, 12, '#ffd36e')
-  disc(sx, HORIZON - 7, 10, '#fff2a8')
+  disc(sx, HORIZON - 7, 12, SUN[0])
+  disc(sx, HORIZON - 7, 10, SUN[1])
   // Distant Gozo on the horizon
-  px(Math.round(W * 0.05), HORIZON - 3, '#d98ab4', Math.round(W * 0.24), 3)
-  px(Math.round(W * 0.09), HORIZON - 5, '#d98ab4', Math.round(W * 0.12), 2)
-  px(Math.round(W * 0.12), HORIZON - 6, '#d98ab4', Math.round(W * 0.05), 1)
+  px(Math.round(W * 0.05), HORIZON - 3, DISTANT_LAND, Math.round(W * 0.24), 3)
+  px(Math.round(W * 0.09), HORIZON - 5, DISTANT_LAND, Math.round(W * 0.12), 2)
+  px(Math.round(W * 0.12), HORIZON - 6, DISTANT_LAND, Math.round(W * 0.05), 1)
 
   // Sea with moving wave dashes, sun glitter and a passing sailboat
-  bands([[HORIZON, '#7cc6dc'], [60, '#46aed0'], [66, '#2a96c2'], [72, '#2088b6']], RAIL)
+  bands(rows(SEA, HORIZON, RAIL), RAIL)
   for (let i = 0; i < W / 10; i++) {
     const y = HORIZON + 3 + ((i * 7) % 16)
     const x = Math.round(((i * 37 + f * 0.6 * (1 + (i % 3))) % (W + 10)) - 5)
-    px(x, y, '#c8f4ff', 3, 1)
+    px(x, y, WAVE, 3, 1)
   }
   for (let y = HORIZON + 1; y < RAIL; y += 2) {
     const spread = 2 + ((y - HORIZON) >> 1)
-    for (let k = 0; k < 2; k++) px(sx + ((y * 7 + k * 5 + f * 3) % (2 * spread + 1)) - spread, y, '#fff4c0', 2, 1)
+    for (let k = 0; k < 2; k++) px(sx + ((y * 7 + k * 5 + f * 3) % (2 * spread + 1)) - spread, y, GLINT, 2, 1)
   }
   {
     const bx = Math.round(((s.t * 3) % (W + 24)) - 12)
@@ -169,9 +170,9 @@ function drawScene(ctx, W, s) {
   const aw = Math.round(Math.min(W * 0.18, 56))
   px(0, 10, '#f3e2b3', Math.max(6, Math.round(aw * 0.3)), TABLE - 10)
   px(Math.max(6, Math.round(aw * 0.3)) - 1, 10, '#cdb48a', 1, TABLE - 10)
-  for (let x = 0; x < aw; x++) px(x, 0, Math.floor(x / 4) % 2 ? '#ff2d95' : '#ffffff', 1, 10)
-  for (let x = 0; x < aw; x += 4) px(x, 10, Math.floor(x / 4) % 2 ? '#ff2d95' : '#ffffff', 4, 1)
-  for (let x = 1; x < aw; x += 4) px(x, 11, Math.floor(x / 4) % 2 ? '#ff2d95' : '#ffffff', 2, 1)
+  for (let x = 0; x < aw; x++) px(x, 0, Math.floor(x / 4) % 2 ? '#1d5fa8' : '#ffffff', 1, 10)
+  for (let x = 0; x < aw; x += 4) px(x, 10, Math.floor(x / 4) % 2 ? '#1d5fa8' : '#ffffff', 4, 1)
+  for (let x = 1; x < aw; x += 4) px(x, 11, Math.floor(x / 4) % 2 ? '#1d5fa8' : '#ffffff', 2, 1)
 
   // Bougainvillea in a terracotta pot on the right
   {
@@ -362,7 +363,17 @@ async function claimFreePint() {
   }
 }
 
-export default function SplitTheG({ user }) {
+export default function SplitTheG({ user, children }) {
+  const sectionRef = useRef(null)
+  // Glass panels fade up into view as you scroll down to them
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
+      { threshold: 0.12 },
+    )
+    sectionRef.current.querySelectorAll('.reveal').forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
   const [pintEmail, setPintEmail] = useState(null) // null | sending | sent | already | error | login
   const sceneRef = useRef(null)
   const canvasRef = useRef(null)
@@ -490,14 +501,19 @@ export default function SplitTheG({ user }) {
   }[ui]
 
   return (
-    <div className="pub-hero">
-      <div className="pub-scene" ref={sceneRef} onClick={act}>
-        <canvas
-          ref={canvasRef}
-          role="img"
-          aria-label="Pixel-art scene: Cotton sits at a table on a seafront bar terrace at sunset with a pint of stout"
-        />
+    <section className="lux todo-lux" ref={sectionRef}>
+      {/* The bar scene stays pinned behind the page; clicks on it pick up / put down the pint */}
+      <div className="lux-bg">
+        <div className="pub-scene" ref={sceneRef} onClick={act}>
+          <canvas
+            ref={canvasRef}
+            role="img"
+            aria-label="Pixel-art scene: Cotton sits at a table on a seafront bar terrace with a pint of stout"
+          />
+        </div>
       </div>
+      <div className="lux-content">
+      <div className="lux-screen lux-game">
       <div className="pub-panel">
         <h2>Split the G</h2>
         <p className="mute">
@@ -505,6 +521,7 @@ export default function SplitTheG({ user }) {
           down. You can’t see the level while I’m drinking, so trust your timing! Win by stopping with the line between
           the black stout and the creamy head right on the middle of the G in GUINNESS.
         </p>
+        <p className="game-rules-short">Tap to drink, tap to stop. Aim for the middle of the G!</p>
         <button
           className={'p' + (ui === 'drinking' ? ' gulping' : '')}
           onClick={act}
@@ -532,6 +549,10 @@ export default function SplitTheG({ user }) {
           <p className="game-best">Your best: {best < WIN_MARGIN * MM_PER_PX ? 'a perfect split ✦' : `${best}mm off`}</p>
         )}
       </div>
-    </div>
+      </div>
+      {/* The rest of the page (Things to do panels) scrolls over the same scene */}
+      {children}
+      </div>
+    </section>
   )
 }

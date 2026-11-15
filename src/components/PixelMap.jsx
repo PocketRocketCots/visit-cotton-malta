@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { SEA_DOT, SEA_FLAT, SEA_SHADOW } from '../lib/palette'
 
 // Pixel-art map of the Maltese islands (Malta, Gozo, Comino), drawn on a 320×240 canvas
 // and scaled up with crisp pixels. Cotton stands waving in St Paul's Bay.
@@ -152,7 +153,7 @@ function watchtower(px, x, y, stone = '#e9c886') {
   px(x - 1, y - 5, DOOR)
 }
 
-const SEA = '#21a8d8'
+const SEA = SEA_FLAT // shared with the other scenes (src/lib/palette.js)
 const OUTLINE = '#5a2340'
 
 // Everything that never moves is drawn once into an off-screen canvas.
@@ -174,7 +175,7 @@ function buildStatic() {
 
   // Sea with a dotted grid, and the Blue Lagoon's turquoise shallows
   px(0, 0, SEA, W, H)
-  for (let y = 4; y < H; y += 8) for (let x = 4; x < W; x += 8) px(x, y, '#5fcdf0')
+  for (let y = 4; y < H; y += 8) for (let x = 4; x < W; x += 8) px(x, y, SEA_DOT)
   const [lx, ly] = P.lagoon
   px(lx - 6, ly - 3, '#6fe3ee', 10, 6)
   px(lx - 5, ly - 4, '#6fe3ee', 8, 8)
@@ -197,7 +198,7 @@ function buildStatic() {
       if (d && d <= depth) {
         px(x, y, tall ? ((x + y) % 4 === 0 ? '#8a4f25' : d <= 2 ? '#d08844' : '#b56a33') : d === 1 ? '#d08844' : '#a8622e')
         if (tall && d === 3) cliffFaces.push([x, y])
-      } else if (d) px(x, y, '#168cbd')
+      } else if (d) px(x, y, SEA_SHADOW)
       if (land(x - 1, y) || land(x + 1, y) || land(x, y + 1)) coast.push([x, y])
     }
 
@@ -708,7 +709,7 @@ function makeBackground(base, { W: cw, H: ch, ox, oy }) {
   const ctx = canvas.getContext('2d')
   const px = makePx(ctx)
   px(0, 0, SEA, cw, ch)
-  for (let y = 4; y < ch; y += 8) for (let x = 4; x < cw; x += 8) px(x, y, '#5fcdf0')
+  for (let y = 4; y < ch; y += 8) for (let x = 4; x < cw; x += 8) px(x, y, SEA_DOT)
   ctx.drawImage(base.canvas, ox, oy)
 
   // Compass rose in the bottom-left corner of the sea
@@ -858,7 +859,7 @@ function drawFrame(ctx, base, L, f) {
     const [sx, sy] = toXY([35.912, 14.553])
     const x = Math.round(sx)
     const y = Math.round(sy) + ((f >> 2) % 2)
-    px(x - 8, y + 3, '#168cbd', 16, 1)
+    px(x - 8, y + 3, SEA_SHADOW, 16, 1)
     px(x - 8, y, '#ffffff', 16, 3)
     px(x - 8, y + 2, '#2a5cc7', 16, 1)
     px(x - 6, y - 2, '#ffffff', 11, 2)
@@ -911,7 +912,7 @@ function drawFrame(ctx, base, L, f) {
     const t = (Math.sin(f / 40) + 1) / 2
     const x = Math.round(P.ferryA[0] + (P.ferryB[0] - P.ferryA[0]) * t) - 4
     const y = Math.round(P.ferryA[1] + (P.ferryB[1] - P.ferryA[1]) * t) - 2
-    px(x, y + 3, '#168cbd', 9, 1)
+    px(x, y + 3, SEA_SHADOW, 9, 1)
     px(x, y + 1, '#ffffff', 9, 2)
     px(x + 1, y + 2, '#2a5cc7', 7, 1)
     px(x + 2, y, '#ffffff', 5, 1)

@@ -43,6 +43,97 @@ function line(px, x0, y0, x1, y1, c) {
 
 const CLOUD = ['...####.......', '.########..##.', '##############', '.############.']
 
+// A cocktail glass with an orange drink, a slice and a little paper umbrella
+function cocktail(px, gx, gy) {
+  px(gx + 2, gy - 3, '#ff5f8f', 4, 1)
+  px(gx + 3, gy - 4, '#ff5f8f', 2, 1)
+  px(gx + 3, gy - 2, '#8a5a2b', 1, 2)
+  px(gx, gy, '#cfe9f5', 5, 1)
+  px(gx, gy + 1, '#ff9f43', 5, 1)
+  px(gx + 1, gy + 2, '#ff9f43', 3, 1)
+  px(gx + 2, gy + 3, '#ffc98a')
+  px(gx + 2, gy + 4, '#e4f0f6', 1, 2)
+  px(gx + 1, gy + 6, '#e4f0f6', 3, 1)
+  px(gx + 4, gy, '#ffd23f')
+}
+
+// Cotton reclining on a sun-lounger (same look as on the map: dark hair, stubble, twirly moustache,
+// wizard-possum vest, tattoos), legs stretched out, cocktail in hand. Every so often he takes a sip.
+function drawLounging(px, ox, oy, f) {
+  const p = (x, y, c, w = 1, h = 1) => px(ox + x, oy + y, c, w, h)
+  const S = '#f1b997', s = '#d8977a', Hr = '#3b2a21', B = '#6e5246', M = '#2e1c14', E = '#2a1d1a'
+  const T = '#f4efe8', t = '#d8d0c4', K = '#2a83c3', ink = '#3d4a5a'
+  const sip = f % 40 < 7
+
+  // Legs stretched out along the lounger, in blue board shorts, flip-flops on
+  p(-3, 21, K, 6, 3)
+  p(-3, 21, '#1d5fa8', 6, 1)
+  p(-10, 22, S, 7, 2)
+  p(-10, 22, s, 7, 1)
+  p(-11, 21, '#ffd23f', 1, 3)
+
+  // Head: short dark hair, faded sides, stubble and the twirly handlebar moustache
+  p(2, 0, Hr, 7, 1)
+  p(1, 1, Hr, 9, 2)
+  p(3, 0, '#5a4030', 3, 1)
+  p(2, 3, S, 7, 7)
+  p(1, 5, S, 1, 2)
+  p(9, 5, S, 1, 2)
+  p(3, 10, S, 5, 1)
+  p(3, 4, Hr, 2, 1)
+  p(6, 4, Hr, 2, 1)
+  if (sip) {
+    p(3, 5, E, 2, 1) // eyes shut, enjoying it
+    p(6, 5, E, 2, 1)
+  } else {
+    p(4, 5, E)
+    p(6, 5, E)
+  }
+  p(5, 6, s)
+  for (let x = 2; x <= 8; x++) if (x % 2 === 0) p(x, 9, B)
+  p(3, 10, B, 5, 1)
+  p(4, 9, '#9c5048', 3, 1)
+  p(4, 7, M, 3, 1)
+  p(2, 8, M, 7, 1)
+  ;[[1, 8], [0, 7], [-1, 6], [-1, 5], [0, 4], [9, 8], [10, 7], [11, 6], [11, 5], [10, 4]].forEach(([x, y]) => p(x, y, M))
+  p(4, 11, s, 3, 2)
+
+  // White vest with the wizard possum
+  p(0, 12, S, 2, 3)
+  p(10, 12, S, 2, 3)
+  p(2, 12, T, 2, 2)
+  p(7, 12, T, 3, 2)
+  p(2, 13, T, 8, 1)
+  p(1, 14, T, 10, 8)
+  p(1, 14, t, 1, 8)
+  p(10, 14, t, 1, 8)
+  p(6, 14, '#9b6fb0')
+  p(5, 15, '#9b6fb0', 2, 1)
+  p(4, 16, '#9b6fb0', 4, 1)
+  p(3, 17, '#6e4a85', 5, 1)
+  p(4, 18, '#ffffff', 4, 2)
+  p(4, 18, '#111111')
+  p(6, 18, '#111111')
+  p(5, 19, '#f29bb0')
+
+  // Left arm resting on the lounger, with tattoo
+  p(-1, 13, S, 2, 8)
+  p(-1, 13, s, 1, 8)
+  ;[[0, 15], [-1, 16], [0, 17]].forEach(([x, y]) => p(x, y, ink))
+
+  // Right arm holding the cocktail up — raised to his mouth for a sip now and then
+  if (sip) {
+    p(10, 9, S, 2, 5)
+    p(8, 8, S, 3, 2)
+    cocktail(px, ox + 7, oy + 4)
+  } else {
+    p(11, 12, S, 2, 5)
+    p(12, 10, S, 2, 3)
+    p(12, 13, ink)
+    cocktail(px, ox + 12, oy + 4)
+  }
+}
+
 function draw(ctx, W, f) {
   const px = makePx(ctx)
   const o0 = Math.round(W * 0.13) // balcony opening, left edge
@@ -140,6 +231,8 @@ function draw(ctx, W, f) {
     px(x + 14, 99, '#9aa3aa', 1, 3)
     px(x + 4, 94, '#5fc3e4', 6, 1) // a folded beach towel
   })
+  // Cotton, lounging on the second sun-lounger with a cocktail
+  drawLounging(px, Math.round(W * 0.31) + 4, 71, f)
   {
     const x = Math.round(W * 0.66)
     px(x, 92, '#ffffff', 10, 1)

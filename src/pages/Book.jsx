@@ -97,9 +97,6 @@ export default function Book({ user, profile }) {
               <span>
                 <b>{upcoming}</b> {upcoming === 1 ? 'visit' : 'visits'} booked
               </span>
-              <span>
-                <b>Sea</b> view balcony
-              </span>
             </div>
           </div>
           <BookingForm start={start} end={end} cfg={cfg} name={profile?.name || user.email} onBooked={load}>
