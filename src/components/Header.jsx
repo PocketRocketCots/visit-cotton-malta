@@ -32,8 +32,7 @@ export default function Header({ page, loggedIn, onLogOut }) {
           <MaltaFlag />
           Visit Cotton in Malta
         </a>
-        {/* Page links and Log out only appear once someone is logged in */}
-        {loggedIn && (
+        {loggedIn ? (
           <a
             href="#home"
             className="authlink"
@@ -44,16 +43,18 @@ export default function Header({ page, loggedIn, onLogOut }) {
           >
             Log out
           </a>
+        ) : (
+          <a href="#login" className="authlink">
+            Log in
+          </a>
         )}
-        {loggedIn && (
-          <nav ref={navRef}>
-            {LINKS.map(([id, label]) => (
-              <a key={id} href={'#' + id} className={page === id ? 'on' : undefined}>
-                {label}
-              </a>
-            ))}
-          </nav>
-        )}
+        <nav ref={navRef}>
+          {LINKS.map(([id, label]) => (
+            <a key={id} href={'#' + id} className={page === id ? 'on' : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
       </div>
     </header>
   )

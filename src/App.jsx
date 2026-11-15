@@ -7,8 +7,8 @@ import Book from './pages/Book'
 import ThingsToDo from './pages/ThingsToDo'
 import Property from './pages/Property'
 
-// Every page except the login page needs a logged-in user.
 const PAGES = ['home', 'book', 'todo', 'property', 'login']
+const GATED = ['book'] // only booking a trip needs a login; every other page is public
 
 function readHash() {
   const p = (location.hash || '#home').slice(1)
@@ -65,8 +65,8 @@ export default function App() {
     }
   }, [ready, user, hash])
 
-  // Until we know who's logged in, show nothing; logged-out visitors only ever get the login page.
-  const page = !ready ? 'loading' : user ? hash : 'login'
+  let page = hash
+  if (GATED.includes(page) && !user) page = 'login'
 
   useEffect(() => {
     scrollTo(0, 0)
@@ -82,11 +82,11 @@ export default function App() {
     <>
       <Header page={page} loggedIn={!!user} onLogOut={logOut} />
       <main>
-        {page === 'login' && <Login />}
-        {user && page === 'home' && <Home />}
-        {user && page === 'book' && <Book user={user} profile={profile} />}
-        {user && page === 'todo' && <ThingsToDo />}
-        {user && page === 'property' && <Property />}
+        {page === 'home' && <Home />}
+        {ready && page === 'login' && <Login />}
+        {page === 'book' && user && <Book user={user} profile={profile} />}
+        {page === 'todo' && <ThingsToDo />}
+        {page === 'property' && <Property />}
       </main>
     </>
   )
