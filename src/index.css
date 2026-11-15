@@ -100,7 +100,10 @@ body[data-page="book"] main{max-width:none;padding:0}
 .lux-intro{min-height:max(640px,calc(100vh - 110px));min-height:max(640px,calc(100dvh - 110px))}
 .apt-scene{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
 .lux-shade{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(90deg,rgba(var(--shade-rgb),.62),rgba(var(--shade-rgb),.15) 42%,rgba(var(--shade-rgb),.1) 58%,rgba(var(--shade-rgb),.4)),linear-gradient(0deg,rgba(var(--shade-rgb),.5),rgba(var(--shade-rgb),0) 45%)}
+  /* A deeper navy wash on the left, where the headline sits over the bright white walls and sky */
+  background:radial-gradient(ellipse 55% 60% at 18% 30%,rgba(var(--shade-rgb),.55),rgba(var(--shade-rgb),0) 70%),
+    linear-gradient(90deg,rgba(var(--shade-rgb),.7),rgba(var(--shade-rgb),.3) 40%,rgba(var(--shade-rgb),.1) 60%,rgba(var(--shade-rgb),.4)),
+    linear-gradient(0deg,rgba(var(--shade-rgb),.55),rgba(var(--shade-rgb),0) 45%)}
 .lux-frame{position:absolute;inset:20px;border:1.5px solid rgba(255,255,255,.55);border-radius:28px;pointer-events:none;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 0 40px rgba(0,0,0,.08)}
 .lux-scroll{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);color:rgba(255,255,255,.8);font-size:.8rem;letter-spacing:.06em;
@@ -149,12 +152,15 @@ body[data-page="book"] main{max-width:none;padding:0}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
 /* Screen 1 on wide screens: headline top-left, blurb bottom-left, booking card down the right (grows to fit) */
 .lux-intro{display:grid;grid-template-columns:1fr min(400px,40%);grid-template-rows:1fr auto;column-gap:40px;padding:36px 44px 76px}
-.lux-title{grid-column:1;grid-row:1;align-self:start;margin:0;font:200 clamp(3.2rem,8.5vw,7.4rem)/.92 var(--sans);letter-spacing:-.035em;
-  color:rgba(255,255,255,.82);text-shadow:0 2px 30px rgba(var(--shade-rgb),.35)}
+/* Headline: still light and airy, but a touch heavier, fully white and with a soft dark halo so it reads on white walls */
+.lux-title{grid-column:1;grid-row:1;align-self:start;margin:0;font:300 clamp(3.2rem,8.5vw,7.4rem)/.92 var(--sans);letter-spacing:-.03em;
+  color:#fff;text-shadow:0 2px 6px rgba(var(--shade-rgb),.35),0 6px 40px rgba(var(--shade-rgb),.55)}
 .lux-title::after{content:none}
-.lux-blurb{grid-column:1;grid-row:2;align-self:end;max-width:340px;font-size:.9rem;color:rgba(255,255,255,.85)}
-.lux-blurb p{margin:0 0 14px;line-height:1.5}
-.lux-stats{display:flex;gap:20px;font-size:.8rem;color:rgba(255,255,255,.75)}
+/* Blurb sits on its own frosted-glass panel, like the booking card */
+.lux-blurb{grid-column:1;grid-row:2;align-self:end;max-width:360px;font-size:.95rem;color:#fff;padding:16px 18px;border-radius:20px;
+  background:rgba(var(--shade-rgb),.45);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3)}
+.lux-blurb p{margin:0 0 12px;line-height:1.55}
+.lux-stats{display:flex;gap:20px;font-size:.8rem;color:rgba(255,255,255,.8)}
 .lux-stats b{display:block;font:300 1.8rem/1.1 var(--sans);color:#fff}
 /* Frosted-glass booking card */
 .glass-card{grid-column:2;grid-row:1 / span 2;align-self:start;padding:20px 22px;border-radius:24px;color:#fff;
@@ -187,7 +193,7 @@ body[data-page="book"] main{max-width:none;padding:0}
   .lux-scroll{display:none}
   .lux-pair{flex-direction:column;align-items:stretch;gap:20px;padding:4px 24px 24px}
   .glass-panel{width:auto}
-  .lux-shade{background:linear-gradient(180deg,rgba(var(--shade-rgb),.5),rgba(var(--shade-rgb),.2) 35%,rgba(var(--shade-rgb),.55))}
+  .lux-shade{background:linear-gradient(180deg,rgba(var(--shade-rgb),.7),rgba(var(--shade-rgb),.45) 30%,rgba(var(--shade-rgb),.25) 55%,rgba(var(--shade-rgb),.55))}
 }
 .nav2{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .nav2 h2{margin:0}

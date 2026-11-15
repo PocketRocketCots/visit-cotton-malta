@@ -105,6 +105,29 @@ const RAIL = 76
 const TABLE = 104 // table-top line
 const LIFT_MS = 420
 
+// Extra room on tall screens: open sky above the scene (the limestone pillar carries on up),
+// and the wooden table carries on below it.
+function drawExtension(ctx, W, H, top, t) {
+  const px = makePx(ctx)
+  px(0, 0, SKY[0][1], W, top)
+  // A few clouds drifting across the open sky
+  const cloud = ['...####.......', '.########..##.', '##############', '.############.']
+  ;[[0.1, 0.25, 2.2], [0.6, 0.55, 1.6], [0.35, 0.8, 1.9]].forEach(([fx, fy, sp]) => {
+    const y = Math.round(top * fy) - 4
+    if (y < 2 || y > top - 6) return
+    const x = Math.round(((fx * (W + 30) + t * sp) % (W + 30)) - 15)
+    cloud.forEach((row, dy) => [...row].forEach((v, dx) => v === '#' && px(x + dx, y + dy, dy === 3 ? '#e4eef7' : '#ffffff')))
+  })
+  const aw = Math.round(Math.min(W * 0.18, 56))
+  const pw = Math.max(6, Math.round(aw * 0.3))
+  px(0, 0, '#f3e2b3', pw, top)
+  px(pw - 1, 0, '#cdb48a', 1, top)
+  const y0 = top + SH
+  px(0, y0, '#a8703c', W, H - y0)
+  for (let i = 0; i < W / 9; i++)
+    for (let y = y0 + 6 + ((i * 5) % 14); y < H; y += 21) px((i * 23) % W, y, '#93602f', 6 + (i % 4) * 3, 1)
+}
+
 function drawScene(ctx, W, s) {
   const px = makePx(ctx)
   const f = Math.floor(s.t * 6)
@@ -397,9 +420,16 @@ export default function SplitTheG({ user, children }) {
     const update = () => {
       const w = el.clientWidth || 1
       const h = el.clientHeight || 1
-      const W = Math.max(150, Math.round((SH * w) / h))
+      // Pixels must stay square. Normally the canvas is SH tall and as wide as the screen's shape needs;
+      // on tall narrow screens (phones) that would be too thin, so keep it 150 wide and make it taller instead.
+      let W = Math.round((SH * w) / h)
+      let H = SH
+      if (W < 150) {
+        W = 150
+        H = Math.round((150 * h) / w)
+      }
       const wide = w >= 1000
-      setLayout((prev) => (prev && prev.W === W && prev.wide === wide ? prev : { W, wide }))
+      setLayout((prev) => (prev && prev.W === W && prev.H === H && prev.wide === wide ? prev : { W, H, wide }))
     }
     update()
     const ro = new ResizeObserver(update)
@@ -411,7 +441,9 @@ export default function SplitTheG({ user, children }) {
     if (!layout) return
     const canvas = canvasRef.current
     canvas.width = layout.W
-    canvas.height = SH
+    canvas.height = layout.H
+    // On tall screens the bar scene sits a little above the middle: open sky above it, more table below
+    const top = Math.round((layout.H - SH) * 0.35)
     const ctx = canvas.getContext('2d')
     const pint = document.createElement('canvas')
     pint.width = PW
@@ -445,7 +477,11 @@ export default function SplitTheG({ user, children }) {
       drawPint(pctx, level.current, now / 1000)
       const pose =
         phase.current === 'drinking' ? 'drink' : phase.current === 'done' && pending.current?.win ? 'cheer' : 'rest'
+      if (layout.H > SH) drawExtension(ctx, layout.W, layout.H, top, now / 1000)
+      ctx.save()
+      ctx.translate(0, top)
       drawScene(ctx, layout.W, { t: now / 1000, focus, phase: phase.current, k, pose, pint })
+      ctx.restore()
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
