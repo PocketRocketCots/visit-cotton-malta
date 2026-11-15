@@ -29,8 +29,8 @@ export default function Login() {
       r = await supabase.auth.signInWithPassword({ email: mail, password })
     }
     if (r.error) return setMsg({ text: r.error.message })
-    // Came here from the Log in link: go to booking. Came from a members-only page: stay on it.
-    if (was === 'login') location.hash = '#book'
+    // Stay on the page they were trying to open; if they came via #login, go to the home map.
+    if (was === 'login') location.hash = '#home'
   }
 
   return (
